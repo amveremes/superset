@@ -1,0 +1,9 @@
+*.bak
+*.db
+*.pyc
+*.sqllite
+*.swp
+__pycache__
+
+.env
+.envrc
