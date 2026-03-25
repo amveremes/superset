@@ -135,8 +135,8 @@ services:
       - 443:443
     volumes:
       - ./caddy/config:/etc/caddy
-    networks:
-      - superset-net
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
       - superset-app
     healthcheck:
@@ -148,12 +148,7 @@ services:
 
 volumes:
   pythonpath:
-    external: false
   #db_home:
-  #  external: false
   redis:
-    external: false
-
-networks:
-  superset-net:
-    driver: bridge
+  caddy_data:
+  caddy_config:
