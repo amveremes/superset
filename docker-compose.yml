@@ -65,8 +65,8 @@ services:
       PYTHONPATH: "/app/pythonpath:/app/config"
       SUPERSET_CONFIG_PATH: /app/config/superset_config.py
     depends_on:
-      db:
-        condition: service_started
+      #db:
+      #  condition: service_started
       redis:
         condition: service_started
     user: "root"
