@@ -7,3 +7,6 @@ __pycache__
 
 .env
 .envrc
+
+.terraform
+.terraform.lock.hcl
