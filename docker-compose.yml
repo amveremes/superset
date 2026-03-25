@@ -24,6 +24,8 @@
 # For verbose logging during development:
 # - Set SUPERSET_LOG_LEVEL=debug in docker/.env-local for detailed Superset logs
 # -----------------------------------------------------------------------
+x-superset-image: &superset-image apache/superset:${TAG:-latest-dev}
+
 x-superset-volumes:
   &superset-volumes # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
   - ./superset/config:/app/config
@@ -41,23 +43,23 @@ services:
     volumes:
       - redis:/data
 
-  db:
-    environment:
-      POSTGRES_DB: superset
-      POSTGRES_USER: superset
-      # Make sure you set this to a unique secure random value on production
-      POSTGRES_PASSWORD: superset
-    image: postgres:17
-    container_name: superset_db
-    restart: unless-stopped
-    volumes:
-      - db_home:/var/lib/postgresql/data
-      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  # Include the docker database
+  #db:
+  #  environment:
+  #    POSTGRES_DB: superset
+  #    POSTGRES_USER: superset
+  #    # Make sure you set this to a unique secure random value on production
+  #    POSTGRES_PASSWORD: superset
+  #  image: postgres:17
+  #  container_name: superset_db
+  #  restart: unless-stopped
+  #  volumes:
+  #    - db_home:/var/lib/postgresql/data
+  #    - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
   superset-init:
     container_name: superset_init
-    build:
-      <<: *common-build
+    image: *superset-image
     command: ["/app/docker/docker-init.sh"]
     environment:
       PYTHONPATH: "/app/pythonpath:/app/config"
@@ -76,8 +78,7 @@ services:
     environment:
       PYTHONPATH: "/app/pythonpath:/app/config"
       SUPERSET_CONFIG_PATH: /app/config/superset_config.py
-    build:
-      <<: *common-build
+    image: *superset-image
     container_name: superset_app
     command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
     user: "root"
@@ -90,8 +91,7 @@ services:
     volumes: *superset-volumes
 
   superset-worker:
-    build:
-      <<: *common-build
+    image: *superset-image
     container_name: superset_worker
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
     environment:
@@ -111,8 +111,7 @@ services:
         ]
 
   superset-worker-beat:
-    build:
-      <<: *common-build
+    image: *superset-image
     container_name: superset_worker_beat
     command: ["/app/docker/docker-bootstrap.sh", "beat"]
     environment:
@@ -150,8 +149,8 @@ services:
 volumes:
   pythonpath:
     external: false
-  db_home:
-    external: false
+  #db_home:
+  #  external: false
   redis:
     external: false
 
