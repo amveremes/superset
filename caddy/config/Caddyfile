@@ -1,0 +1,37 @@
+# Caddyfile — Reverse proxy HTTPS automatique for Superset
+#
+# Replace :
+#   - superset.local → domain (or IP:port)
+#   - localhost → 127.0.0.1 or EC2 machine
+#
+# Caddy automatically generates Let's Encrypt certificates
+
+# Local only : self-signed certificates
+#localhost {
+#    reverse_proxy superset:8088 {
+#        header_down -Server
+#        header_up X-Forwarded-Host {host}
+#    }
+#    
+#    encode gzip
+#    
+#    log {
+#        output stdout
+#        format json
+#    }
+#}
+
+# For real domain (replace example.com) :
+example.com {
+    reverse_proxy superset-app:8088 {
+        header_uri -Server
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {http.request.proto}
+        header_up X-Forwarded-Host {http.request.host}
+    }
+    encode gzip
+    log {
+        output stdout
+        format json
+    }
+}
