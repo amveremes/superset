@@ -4,9 +4,13 @@
 *.sqllite
 *.swp
 __pycache__
+.vscode
 
 .env
 .envrc
 
 .terraform
 .terraform.lock.hcl
+
+terraform/inventory.yaml
+terraform/output.json

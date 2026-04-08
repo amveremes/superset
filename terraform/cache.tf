@@ -1,6 +1,5 @@
 # cache.tf
 
-
 # Subnet group for ElastiCache
 resource "aws_elasticache_subnet_group" "main" {
   name       = "cache-subnet-group"

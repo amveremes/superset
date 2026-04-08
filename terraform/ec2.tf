@@ -1,3 +1,4 @@
+# ec2.tf
 
 resource "aws_key_pair" "ssh_key_pub" {
   key_name   = "superset_ssh_key"
