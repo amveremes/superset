@@ -7,28 +7,23 @@
 # Caddy automatically generates Let's Encrypt certificates
 
 # Local only : self-signed certificates
-#localhost {
-#    reverse_proxy superset:8088 {
-#        header_down -Server
-#        header_up X-Forwarded-Host {host}
-#    }
-#    
-#    encode gzip
-#    
-#    log {
-#        output stdout
-#        format json
-#    }
-#}
-
-# For real domain (replace example.com) :
-example.com {
+localhost {
     reverse_proxy superset-app:8088 {
-        header_uri -Server
+        header_down -Server
         header_up X-Forwarded-For {http.request.remote.host}
         header_up X-Forwarded-Proto {http.request.proto}
         header_up X-Forwarded-Host {http.request.host}
     }
+    encode gzip
+    log {
+        output stdout
+        format json
+    }
+}
+
+# For real domain (replace example.com) :
+example.com {
+    reverse_proxy superset-app:8088
     encode gzip
     log {
         output stdout
