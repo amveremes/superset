@@ -9,6 +9,7 @@ resource "local_file" "output_json" {
     db_endpoint    = aws_db_instance.postgres.address
     db_user        = var.db_username
     db_password    = var.db_password
+    secret_key     = random_password.secret_key.result
     db_table       = var.db_table
     cache_endpoint = aws_elasticache_cluster.superset.cache_nodes[0].address
   })
@@ -37,4 +38,8 @@ output "db_password" {
 # ElastiCache endpoint
 output "cache_endpoint" {
   value = aws_elasticache_cluster.superset.cache_nodes[0].address
+}
+
+output "secret_key" {
+  value = random_password.secret_key.result
 }

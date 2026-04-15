@@ -13,7 +13,7 @@
     db_user: "{{ hostvars['localhost']['db_user'] }}"
     db_password: "{{ hostvars['localhost']['db_password'] }}"
     cache_endpoint: "{{ hostvars['localhost']['cache_endpoint'] }}"
-    secret_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+    secret_key: "{{ hostvars['localhost']['secret_key'] }}"
 
   tasks:
     - name: Update apt cache
