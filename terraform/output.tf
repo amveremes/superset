@@ -9,6 +9,7 @@ resource "local_file" "output_json" {
     db_endpoint    = aws_db_instance.postgres.address
     db_user        = var.db_username
     db_password    = var.db_password
+    db_table       = var.db_table
     cache_endpoint = aws_elasticache_cluster.superset.cache_nodes[0].address
   })
   file_permission = "0640"

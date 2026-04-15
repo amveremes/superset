@@ -19,9 +19,8 @@ variable "ssh_key_pub" {
 }
 
 variable "allowed_cidr_blocks" {
-  description = "List of CIDR blocks allowed to access RDS"
+  description = "List of CIDR blocks allowed to access RDS (ex. [0.0.0.0/0])"
   type        = list(string)
-  default     = ["81.250.156.186/32"]
 }
 
 variable "db_identifier" {
@@ -62,6 +61,12 @@ variable "db_username" {
 
 variable "db_password" {
   description = "The password for the database"
+  type        = string
+  default     = "superset"
+}
+
+variable "db_table" {
+  description = "The name of the table to create in the database"
   type        = string
   default     = "superset"
 }
