@@ -13,7 +13,7 @@ resource "aws_elasticache_subnet_group" "main" {
 # Security group for ElastiCache
 resource "aws_security_group" "cache" {
   name_prefix = "cache-"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id      = data.aws_vpc.public.id
   description = "Security group for ElastiCache"
 
   ingress {
@@ -23,6 +23,14 @@ resource "aws_security_group" "cache" {
     cidr_blocks = var.allowed_cidr_blocks
     #security_groups = [ec2_security_group.id]
     description = "Redis from application"
+  }
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.superset_sg.id]
+    description     = "Redis from Superset EC2"
   }
 
   egress {

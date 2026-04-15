@@ -1,0 +1,112 @@
+# playbooks/superset.yaml
+
+- name: Deploy Superset via Docker Compose
+  hosts: default
+  become: true
+  become_user: root
+  vars:
+    repo_url: "https://github.com/amveremes/superset.git"
+    dest_dir: "/opt/superset"
+    repo_version: "HEAD"
+    domain_name: "{{ hostvars['localhost']['domain_name'] }}"
+    db_endpoint: "{{ hostvars['localhost']['db_endpoint'] }}"
+    db_user: "{{ hostvars['localhost']['db_user'] }}"
+    db_password: "{{ hostvars['localhost']['db_password'] }}"
+    cache_endpoint: "{{ hostvars['localhost']['cache_endpoint'] }}"
+    secret_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - git
+          - python3-pip
+        state: present
+
+    - name: Install Docker using official script
+      ansible.builtin.shell: |
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+      args:
+        creates: /usr/bin/docker
+      register: docker_install
+
+    - name: Ensure Docker service is running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu user to docker group
+      ansible.builtin.user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Ensure destination directory exists
+      ansible.builtin.file:
+        path: "{{ dest_dir }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Clone or update superset repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ dest_dir }}"
+        version: "{{ repo_version }}"
+        force: yes
+        update: yes
+        accept_hostkey: yes
+      become_user: ubuntu
+
+    - name: Create .env file
+      ansible.builtin.template:
+        src: templates/env.j2
+        dest: "{{ dest_dir }}/superset/config/.env"
+        owner: ubuntu
+        group: ubuntu
+        mode: "0644"
+
+    - name: Template Caddyfile with domain_name
+      ansible.builtin.template:
+        src: templates/Caddyfile.j2
+        dest: "{{ dest_dir }}/caddy/config/Caddyfile"
+        owner: ubuntu
+        group: ubuntu
+        mode: "0644"
+
+    - name: Start containers with docker compose
+      ansible.builtin.shell: |
+        docker compose up -d
+      args:
+        chdir: "{{ dest_dir }}/terraform"
+        executable: /bin/bash
+      register: compose_result
+      changed_when: compose_result.rc == 0
+
+    - name: Show docker compose output
+      ansible.builtin.debug:
+        var: compose_result.stdout
+
+    - name: Wait for containers to be ready
+      ansible.builtin.pause:
+        seconds: 10
+
+    - name: List running containers (CORRECTED)
+      ansible.builtin.shell: |
+        docker ps --format "table {{ '{{' }}.Names{{ '}}' }}\t{{ '{{' }}.Status{{ '}}' }}\t{{ '{{' }}.Ports{{ '}}' }}"
+      register: containers
+      changed_when: false
+
+    - name: Show containers
+      ansible.builtin.debug:
+        msg: "{{ containers.stdout_lines }}"

@@ -14,9 +14,10 @@ all:
     ${local.group_name}:
       hosts:
         superset:
-          ansible_host: ${aws_instance.superset.public_ip}
+          ansible_host: ${aws_eip.superset_eip.public_ip}
           ansible_user: ${local.ansible_user}
           ansible_ssh_private_key_file: ${local.ansible_ssh_key_path}
+          ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 EOT
 }
 

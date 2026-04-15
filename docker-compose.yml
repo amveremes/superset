@@ -34,25 +34,25 @@ x-common-build: &common-build
   target: prod
 
 services:
-  redis:
-    image: redis:7
-    container_name: superset_cache
-    restart: unless-stopped
-    volumes:
-      - redis:/data
+#  redis:
+#    image: redis:7
+#    container_name: superset_cache
+#    restart: unless-stopped
+#    volumes:
+#      - redis:/data
 
-  db:
-    environment:
-      POSTGRES_DB: superset
-      POSTGRES_USER: superset
-      # Make sure you set this to a unique secure random value on production
-      POSTGRES_PASSWORD: superset
-    image: postgres:17
-    container_name: superset_db
-    restart: unless-stopped
-    volumes:
-      - db_home:/var/lib/postgresql/data
-      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+#  db:
+#    environment:
+#      POSTGRES_DB: superset
+#      POSTGRES_USER: superset
+#      # Make sure you set this to a unique secure random value on production
+#      POSTGRES_PASSWORD: superset
+#    image: postgres:17
+#    container_name: superset_db
+#    restart: unless-stopped
+#    volumes:
+#      - db_home:/var/lib/postgresql/data
+#      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
   superset-init:
     container_name: superset_init
@@ -62,15 +62,15 @@ services:
     environment:
       PYTHONPATH: "/app/pythonpath:/app/config"
       SUPERSET_CONFIG_PATH: /app/config/superset_config.py
-    depends_on:
-      db:
-        condition: service_started
-      redis:
-        condition: service_started
     user: "root"
     volumes: *superset-volumes
     healthcheck:
       disable: true
+#    depends_on:
+#      db:
+#        condition: service_started
+#      redis:
+#        condition: service_started
 
   superset-app:
     environment:
@@ -146,7 +146,7 @@ services:
 
 volumes:
   pythonpath:
-  db_home:
-  redis:
   caddy_data:
   caddy_config:
+#  db_home:
+#  redis:

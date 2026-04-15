@@ -77,3 +77,8 @@ variable "cache_node_type" {
   type        = string
   default     = "cache.t4g.micro"
 }
+
+variable "domain_name" {
+  description = "The domain name for the Superset application"
+  type        = string
+}

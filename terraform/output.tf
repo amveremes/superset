@@ -3,25 +3,15 @@
 resource "local_file" "output_json" {
   filename = "${path.module}/output.json"
   content = jsonencode({
-    instance_id = aws_instance.superset.id
-    public_ip   = aws_instance.superset.public_ip
-    vpc_id      = data.aws_vpc.default.id
-    subnet_ids  = data.aws_subnets.private.ids
-    db_endpoint = aws_db_instance.postgres.address
+    instance_id    = aws_instance.superset.id
+    public_ip      = aws_eip.superset_eip.public_ip
+    domain_name    = var.domain_name
+    db_endpoint    = aws_db_instance.postgres.address
+    db_user        = var.db_username
+    db_password    = var.db_password
+    cache_endpoint = aws_elasticache_cluster.superset.cache_nodes[0].address
   })
   file_permission = "0640"
-}
-
-output "ansible_output_json_path" {
-  value = local_file.output_json.filename
-}
-
-output "vpc_id" {
-  value = data.aws_vpc.default.id
-}
-
-output "subnet_id" {
-  value = data.aws_subnets.private.ids
 }
 
 output "instance_id" {
@@ -29,5 +19,21 @@ output "instance_id" {
 }
 
 output "public_ip" {
-  value = aws_instance.superset.public_ip
+  value = aws_eip.superset_eip.public_ip
+}
+# RDS endpoint
+output "db_endpoint" {
+  value = aws_db_instance.postgres.address
+}
+# RDS db_user
+output "db_user" {
+  value = var.db_username
+}
+# RDS password
+output "db_password" {
+  value = var.db_password
+}
+# ElastiCache endpoint
+output "cache_endpoint" {
+  value = aws_elasticache_cluster.superset.cache_nodes[0].address
 }
