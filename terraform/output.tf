@@ -39,7 +39,3 @@ output "db_password" {
 output "cache_endpoint" {
   value = aws_elasticache_cluster.superset.cache_nodes[0].address
 }
-
-output "secret_key" {
-  value = random_password.secret_key.result
-}
